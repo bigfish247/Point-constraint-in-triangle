@@ -4,12 +4,14 @@ PVector C;
 
 //float xoff;
 //float yoff;
+
+boolean isStoped = false;
 void setup(){
   size(600,600);
   
   A = new PVector(200,100);
-  B = new PVector(500,300);
-  C = new PVector(100,400);
+  B = new PVector(500,399);
+  C = new PVector(101,400);
   
 
   noStroke();
@@ -22,10 +24,13 @@ void draw(){
   // noise random point
   //xoff += 0.003f;
   //yoff += 0.005f;
-  //float x = width/2 +150 * (noise(xoff)-0.5);
-  //float y = height/2 +150 * (noise(yoff)-0.5);
+  //float x = width/2 +150* (noise(xoff));
+  //float y = height/2 +150 * (noise(yoff));
   
-  PVector constraint_point = PointOfConstraint(new PVector(mouseX,mouseY), A, B, C );
+  float x = width/2 + 200* cos(TWO_PI/5000 * millis());
+  float y = height/2 + 200 * sin(TWO_PI/5000 * millis());
+  
+  PVector constraint_point = PointOfConstraint(new PVector(x,y), A, B, C );
   
   pushStyle();
   stroke(255);
@@ -36,7 +41,7 @@ void draw(){
   popStyle();
   
   fill(255);
-  ellipse(mouseX, mouseY,10,10);
+  ellipse(x,y,10,10);
   fill(255,255,0);
   ellipse(constraint_point.x, constraint_point.y,10,10);
 }
@@ -65,7 +70,11 @@ PVector PointOfConstraint(PVector M, PVector _A, PVector _B, PVector _C){
        target_point = BCM;
   }
   
-  return target_point;
+  if(PointInTri(M, _A, _B, _C)){
+    return M;
+  }else{
+    return target_point;
+  }
 }
 
 PVector PointToSeg(PVector M, PVector P1, PVector P2, PVector P3)
@@ -88,11 +97,7 @@ PVector PointToSeg(PVector M, PVector P1, PVector P2, PVector P3)
   float px = P1.x + (P2.x - P1.x) * r;
   float py = P1.y + (P2.y - P1.y) * r;
   
-  if(PointInTri(M, P1, P2, P3)){
-    closest_point = M;
-  }else{
-    closest_point = new PVector(px,py); 
-  }
+  closest_point = new PVector(px,py); 
   
   return closest_point;
 }
@@ -104,7 +109,9 @@ boolean PointInTri(PVector M, PVector _A, PVector _B , PVector _C){
   float Area2 = CalcTriArea(M, _A, _C);
   float Area3 = CalcTriArea(M, _A, _B);
 
-  if((Area1 + Area2 + Area3) > TotalArea)
+  //println(round(Area1 + Area2 + Area3));
+  if(round(Area1 + Area2 + Area3) > round(TotalArea))
+  //if((Area1+Area2+Area3)>TotalArea)
     return false;
   else
     return true;
@@ -119,4 +126,5 @@ float CalcTriArea(PVector P1, PVector P2, PVector P3)
 
   det = abs(P1P2.x * P1P3.y - P1P2.y * P1P3.x);
   return (det / 2.0f);
+  //return det;
 }
